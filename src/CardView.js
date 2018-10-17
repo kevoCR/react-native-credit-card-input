@@ -43,7 +43,7 @@ const s = StyleSheet.create({
     left: 28,
   },
   name: {
-    fontSize: 16,
+    fontSize: 15,
     position: "absolute",
     bottom: 20,
     left: 25,
@@ -112,6 +112,7 @@ export default class CardView extends Component {
   render() {
     const { focused,
       brand, name, number, expiry, cvc, customIcons,
+      containerStyle,
       placeholder, imageFront, imageBack, scale, fontFamily } = this.props;
 
     const Icons = { ...defaultIcons, ...customIcons };
@@ -125,7 +126,7 @@ export default class CardView extends Component {
     ] };
 
     return (
-      <View style={[s.cardContainer, containerSize]}>
+      <View style={[s.cardContainer, containerSize,containerStyle]}>
         <FlipCard style={{ borderWidth: 0 }}
           flipHorizontal
           flipVertical={false}
