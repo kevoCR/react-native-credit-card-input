@@ -6,11 +6,13 @@ import {
   Image,
   Text,
   StyleSheet,
-  Platform,
+  Platform,TouchableOpacity
 } from "react-native";
 
 import defaultIcons from "./Icons";
 import FlipCard from "react-native-flip-card";
+import { Icon } from "react-native-elements";
+import AppStyles from "../../../app/styles/AppStyles";
 
 const BASE_SIZE = { width: 300, height: 190 };
 
@@ -20,9 +22,9 @@ const s = StyleSheet.create({
   icon: {
     position: "absolute",
     top: 15,
-    right: 15,
-    width: 60,
-    height: 40,
+    left: 15,
+    width: 75,
+    height: 50,
     resizeMode: "contain",
   },
   baseText: {
@@ -112,8 +114,7 @@ export default class CardView extends Component {
   render() {
     const { focused,
       brand, name, number, expiry, cvc, customIcons,
-      containerStyle,
-      placeholder, imageFront, imageBack, scale, fontFamily } = this.props;
+      placeholder, imageFront, imageBack, scale, fontFamily, isList } = this.props;
 
     const Icons = { ...defaultIcons, ...customIcons };
     const isAmex = brand === "american-express";
@@ -126,7 +127,7 @@ export default class CardView extends Component {
     ] };
 
     return (
-      <View style={[s.cardContainer, containerSize,containerStyle]}>
+      <View style={[s.cardContainer, containerSize]}>
         <FlipCard style={{ borderWidth: 0 }}
           flipHorizontal
           flipVertical={false}
@@ -138,6 +139,10 @@ export default class CardView extends Component {
             source={imageFront}>
               <Image style={[s.icon]}
                 source={Icons[brand]} />
+                {isList && <Text style={[s.icon,{right:50, top:30, left: null,width:110, color:'white', fontSize:12 , fontFamily:AppStyles.fontFamily.semibold }]}>Predeterminada</Text>}
+                {isList && <TouchableOpacity onPress={() => console.log('hola')}>
+                <Icon containerStyle={[s.icon, { right:0 , left: null }]} name='settings-outline' type='material-community' color="white"/>
+                </TouchableOpacity>}
               <Text style={[s.baseText, { fontFamily }, s.number, !number && s.placeholder, focused === "number" && s.focused]}>
                 { !number ? placeholder.number : number }
               </Text>
