@@ -11,8 +11,9 @@ import {
 
 import defaultIcons from "./Icons";
 import FlipCard from "react-native-flip-card";
-import { Icon } from "react-native-elements";
+import { Icon, CheckBox } from "react-native-elements";
 import AppStyles from "../../../app/styles/AppStyles";
+import Menu, { MenuItem, MenuDivider } from 'react-native-material-menu';
 
 const BASE_SIZE = { width: 300, height: 190 };
 
@@ -75,10 +76,36 @@ const s = StyleSheet.create({
     top: 80,
     right: 30,
   },
-});
+  iconsettings:{
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: 75,
+    height: 50,
+    resizeMode: "contain",
+    right:0 
+  },
+  defaultText:{
+    
+    position: "absolute",
+    left: null,
+    height: 50,
+    resizeMode: "contain",
+    right:50,
+    top:30,
+    width:110, 
+    color:'white', 
+    fontSize:12, 
+    fontFamily:AppStyles.fontFamily.semibold }
+  });
 
-/* eslint react/prop-types: 0 */ // https://github.com/yannickcr/eslint-plugin-react/issues/106
 export default class CardView extends Component {
+
+constructor() {
+  super();
+  this.state = [{ checkedSend :false, checkedReceived:false }];
+}
+
   static propTypes = {
     focused: PropTypes.string,
 
@@ -111,11 +138,25 @@ export default class CardView extends Component {
     imageBack: require("../images/card-back.png"),
   };
 
+  _menu = null;
+
+  setMenuRef = ref => {
+    this._menu = ref;
+  };
+
+  hideMenu = () => {
+    this._menu.hide();
+  };
+
+  showMenu = () => {
+    this._menu.show();
+  };
+
   render() {
     const { focused,
       brand, name, number, expiry, cvc, customIcons,
       placeholder, imageFront, imageBack, scale, fontFamily, isList } = this.props;
-
+    const { checkedReceived, checkedSend } = this.state  
     const Icons = { ...defaultIcons, ...customIcons };
     const isAmex = brand === "american-express";
     const shouldFlip = !isAmex && focused === "cvc";
@@ -139,10 +180,42 @@ export default class CardView extends Component {
             source={imageFront}>
               <Image style={[s.icon]}
                 source={Icons[brand]} />
-                {isList && <Text style={[s.icon,{right:50, top:30, left: null,width:110, color:'white', fontSize:12 , fontFamily:AppStyles.fontFamily.semibold }]}>Predeterminada</Text>}
-                {isList && <TouchableOpacity onPress={() => console.log('hola')}>
-                <Icon containerStyle={[s.icon, { right:0 , left: null }]} name='settings-outline' type='material-community' color="white"/>
-                </TouchableOpacity>}
+                {isList && <Text style={s.defaultText}>Predeterminada</Text>}
+                {isList && <TouchableOpacity onPress={this.showMenu}>
+                <View style={[s.icon, { right:0 , left: null }]}>  
+                <Menu
+                ref={this.setMenuRef}
+          button={
+          <Icon containerStyle={s.iconsettings} name='settings-outline' type='material-community' color="white"/>
+         }
+        >
+        <MenuItem 
+        style= { { backgroundColor: 'transparent', borderColor:'transparent', margin:0, padding:0 } }
+        onPress={this.hideMenu}>Predeterminada:</MenuItem>
+        <MenuDivider />
+        <CheckBox
+        center
+        title='Recibir'
+        iconType='material-community'
+        checkedIcon='credit-card'
+        uncheckedIcon='credit-card'
+        checkedColor='blue'
+        onPress={ () => this.setState({ checkedReceived: !checkedReceived } )}
+        containerStyle= { { backgroundColor: 'transparent', borderColor:'transparent', margin:8, padding:0 } }
+        checked={this.state.checkedReceived}/>
+        <CheckBox
+        center
+        title='Enviar'
+        iconType='material-community'
+        checkedIcon='credit-card'
+        uncheckedIcon='credit-card'
+        checkedColor='green'
+        containerStyle= { { backgroundColor: 'transparent', borderColor:'transparent', margin:8, padding:0 } }
+        onPress={ () => this.setState({ checkedSend: !checkedSend } )}
+        checked={this.state.checkedSend}/>
+        </Menu> 
+        </View>
+                 </TouchableOpacity>}
               <Text style={[s.baseText, { fontFamily }, s.number, !number && s.placeholder, focused === "number" && s.focused]}>
                 { !number ? placeholder.number : number }
               </Text>
