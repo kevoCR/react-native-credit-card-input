@@ -86,7 +86,6 @@ const s = StyleSheet.create({
     right:0 
   },
   defaultText:{
-    
     position: "absolute",
     left: null,
     height: 50,
@@ -96,26 +95,39 @@ const s = StyleSheet.create({
     width:110, 
     color:'white', 
     fontSize:12, 
-    fontFamily:AppStyles.fontFamily.semibold }
+    fontFamily:AppStyles.fontFamily.semibold },
+  menuitem : {
+    backgroundColor: 'transparent',
+    borderColor:'transparent',
+    margin:8,
+    padding:0 
+    }
   });
+
+  const preset = {
+    none: 'none',
+    debit: 'debit',
+    credit: 'credit',
+    both: 'both',
+  }
 
 export default class CardView extends Component {
 
 constructor() {
   super();
-  this.state = [{ checkedSend :false, checkedReceived:false }];
+  const { preset } = this.props;
+  this.state = [this.loadCheckedPreset(preset)];
 }
 
   static propTypes = {
     focused: PropTypes.string,
-
     brand: PropTypes.string,
     name: PropTypes.string,
     number: PropTypes.string,
     expiry: PropTypes.string,
     cvc: PropTypes.string,
     placeholder: PropTypes.object,
-
+    preset: PropTypes.oneOf(Object.keys(preset)),
     scale: PropTypes.number,
     fontFamily: PropTypes.string,
     imageFront: PropTypes.number,
@@ -152,10 +164,53 @@ constructor() {
     this._menu.show();
   };
 
+  loadCheckedPreset(status) {
+    switch(status) {
+
+      case preset.both: {
+        this.setState({checkedReceived: true, checkedSend: true });
+      }
+      case preset.credit:{
+        this.setState({checkedReceived: true});
+      }
+      case preset.debit:{
+        this.setState({checkedSend: true });
+      }
+
+    }
+  }
+
+  updateState() {
+    const { checkedReceived, checkedSend } = this.state;
+    if (checkedReceived && checkedSend) {
+      //send both
+    }
+    else 
+    if (checkedReceived) {
+       //send credit
+    }
+    else if (checkedSend) {
+      // send debit
+    }
+    else {
+      //send none
+    }
+  }
+
+  onCheckedReceived(checkedReceived){
+      this.setState({ checkedReceived: checkedReceived })
+      this.updateState();
+  }
+
+  onCheckedSend() {
+    this.setState({ checkedSend: !checkedSend })
+    this.updateState();
+  }
+
   render() {
     const { focused,
       brand, name, number, expiry, cvc, customIcons,
-      placeholder, imageFront, imageBack, scale, fontFamily, isList } = this.props;
+      placeholder, imageFront, imageBack, scale, fontFamily, isList, preset} = this.props;
     const { checkedReceived, checkedSend } = this.state  
     const Icons = { ...defaultIcons, ...customIcons };
     const isAmex = brand === "american-express";
@@ -189,10 +244,9 @@ constructor() {
           <Icon containerStyle={s.iconsettings} name='settings-outline' type='material-community' color="white"/>
          }
         >
-        <MenuItem 
+        {/* <MenuItem 
         style= { { backgroundColor: 'transparent', borderColor:'transparent', margin:0, padding:0 } }
-        onPress={this.hideMenu}>Predeterminada:</MenuItem>
-        <MenuDivider />
+        onPress={this.hideMenu}>Predeterminada:</MenuItem> */}
         <CheckBox
         center
         title='Recibir'
@@ -200,8 +254,8 @@ constructor() {
         checkedIcon='credit-card'
         uncheckedIcon='credit-card'
         checkedColor='blue'
-        onPress={ () => this.setState({ checkedReceived: !checkedReceived } )}
-        containerStyle= { { backgroundColor: 'transparent', borderColor:'transparent', margin:8, padding:0 } }
+        onPress={ this.onCheckedReceived(!checkedReceived, checkedSend) }
+        containerStyle= { s.menuitem }
         checked={this.state.checkedReceived}/>
         <CheckBox
         center
@@ -210,9 +264,13 @@ constructor() {
         checkedIcon='credit-card'
         uncheckedIcon='credit-card'
         checkedColor='green'
-        containerStyle= { { backgroundColor: 'transparent', borderColor:'transparent', margin:8, padding:0 } }
-        onPress={ () => this.setState({ checkedSend: !checkedSend } )}
+        containerStyle= { s.menuitem }
+        onPress={ this.onCheckedSend }
         checked={this.state.checkedSend}/>
+         <MenuDivider />
+         <MenuItem 
+        style= { s.menuitem }
+        onPress={this.hideMenu}>Eliminar</MenuItem>
         </Menu> 
         </View>
                  </TouchableOpacity>}
